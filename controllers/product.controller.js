@@ -1,0 +1,37 @@
+import Products from "../models/Products.js";
+
+
+export const getProducts = async (req, res) => {
+  const { category, cursor } = req.query;
+
+  const limit = 20;
+
+  const query = {};
+
+  if (category) {
+    query.category = category;
+  }
+
+  if (cursor) {
+    query._id = {
+      $lt: cursor,
+    };
+  }
+
+  const data = await Products.find(query)
+
+    .sort({
+      createdAt: -1,
+      _id: -1,
+    })
+
+    .limit(limit);
+
+  res.json({
+    count: data.length,
+
+    nextCursor: data.length ? data[data.length - 1]._id : null,
+
+    data,
+  });
+};
